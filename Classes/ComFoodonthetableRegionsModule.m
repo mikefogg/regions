@@ -110,6 +110,8 @@
 {
     ENSURE_SINGLE_ARG(newOptions, NSDictionary);
     [self setOptions:newOptions];
+    
+    [self getLocationManager];
 }
 
 -(void)startMonitoring:(id)region
