@@ -5,34 +5,34 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>BD3B3B26-F896-48BF-A7CB-4A005E30276B</string>
+	<string>7F818C1D-826D-478E-90B7-40975256DC0D</string>
 	<key>IDESourceControlProjectName</key>
 	<string>regions</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>B9A1BE63-20F2-479D-BCB2-6CC76490B60A</key>
-		<string>https://github.com/shad/regions.git</string>
+		<key>942F7E83-6E1F-49F9-A196-AB2F1E6DDF96</key>
+		<string>ssh://github.com/mikefogg/regions.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>regions.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>B9A1BE63-20F2-479D-BCB2-6CC76490B60A</key>
+		<key>942F7E83-6E1F-49F9-A196-AB2F1E6DDF96</key>
 		<string>../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>https://github.com/shad/regions.git</string>
+	<string>ssh://github.com/mikefogg/regions.git</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>110</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>B9A1BE63-20F2-479D-BCB2-6CC76490B60A</string>
+	<string>942F7E83-6E1F-49F9-A196-AB2F1E6DDF96</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>B9A1BE63-20F2-479D-BCB2-6CC76490B60A</string>
+			<string>942F7E83-6E1F-49F9-A196-AB2F1E6DDF96</string>
 			<key>IDESourceControlWCCName</key>
 			<string>regions</string>
 		</dict>
