@@ -110,7 +110,7 @@
             locationManager.distanceFilter = kCLLocationAccuracyNearestTenMeters;
             locationManager.desiredAccuracy = kCLLocationAccuracyBest;
             
-            if(![CLLocationManager isMonitoringAvailableForClass:[CLRegion class]]) {
+            if(![self regionMonitoringEnabled]) {
                 // NSLog(@"[INFO] %@",@"This app requires region monitoring features which are unavailable on this device.");
                 return;
             }
@@ -131,8 +131,6 @@
             checkLocal = TRUE;
             
             [locationManager startUpdatingLocation];
-            
-            // NSLog(@"[INFO] [REGIONS] LOCATION MANAGER INITIALIZED!");
         
         });
         
@@ -175,6 +173,23 @@
     return  region;
 }
 
+- (BOOL*)regionMonitoringEnabled
+{
+    
+    BOOL *enabled = false;
+    
+    NSString *version = [[UIDevice currentDevice] systemVersion];
+    
+    if([version floatValue] >= 7.0f){
+        // For iOS 7
+        enabled = [CLLocationManager isMonitoringAvailableForClass:[CLRegion class]];
+    } else {
+        // For iOS 6
+        enabled = [CLLocationManager regionMonitoringAvailable];
+    };
+
+    return enabled;
+}
 
 - (NSNumber*)calculateDistanceInMetersBetweenCoord:(CLLocationCoordinate2D)coord1 coord:(CLLocationCoordinate2D)coord2 {
     NSInteger nRadius = 6371; // Earth's radius in Kilometers
@@ -193,19 +208,14 @@
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
-    // NSLog(@"[INFO] [REGIONS] [CHECK LOCAL] STARTING");
-
     if(checkLocal)
     {
-        // NSLog(@"[INFO] [REGIONS] [CHECK LOCAL] INITIALIZING");
-        
         // Make sure we check the users current location
         checkLocal = TRUE;
         NSSet * monitoredRegions = locationManager.monitoredRegions;
         CLLocation *newLocation = (CLLocation*)[locations lastObject];
         if(monitoredRegions)
         {
-            // NSLog(@"[INFO] [CHECK_LOCAL] :: Regions to check");
             [monitoredRegions enumerateObjectsUsingBlock:^(CLRegion *region,BOOL *stop)
              {
                  NSString *identifer = region.identifier;
@@ -217,7 +227,6 @@
                  if([currentLocationDistance floatValue] < radius)
                  {
                     dispatch_async(dispatch_get_main_queue(), ^{
-                      // NSLog(@"[INFO] Invoking didEnterRegion Manually for region: %@",identifer);
 
                       //stop Monitoring Region temporarily
                       [locationManager stopMonitoringForRegion:region];
@@ -228,11 +237,8 @@
                     });
                  }
              }];
-            
-            // NSLog(@"[INFO] [REGIONS] [CHECK LOCAL] INITIALIZED");
         }
         
-        // NSLog(@"[INFO] [REGIONS] [CHECK LOCAL] STOPPING UPDATING LOCATIONS");
         [locationManager stopUpdatingLocation];
     }
 }
@@ -242,12 +248,11 @@
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
                            formattedError,@"error",
                            nil];
-	// NSLog(@"[INFO] didFailWithError %@", formattedError);
+
     [self fireEvent:@"didFailWithError" withObject:event];
 }
 
 - (void)locationManager:(CLLocationManager *)manager didEnterRegion:(CLRegion *)region  {
-    // NSLog(@"[INFO] [REGIONS] [GEOFENCE] DID ENTER REGION");
     
     NSString *msg = [NSString stringWithFormat:@"Enter %@ at %@", region.identifier, [NSDate date]];
     if (![msg isEqualToString:self.lastEvent])
@@ -264,13 +269,12 @@
                                region_info,@"region",
                                msg, @"message",
                                nil];
-        // NSLog(@"[INFO] [REGIONS] didEnterRegion %@", msg);
+
         [self fireEvent:@"didEnterRegion" withObject:event];
     }
 }
 
 - (void)locationManager:(CLLocationManager *)manager didExitRegion:(CLRegion *)region {
-    // NSLog(@"[INFO] [REGIONS] [GEOFENCE] DID EXIT REGION");
     
     NSString *msg = [NSString stringWithFormat:@"Exit %@ at %@", region.identifier, [NSDate date]];
     if (![msg isEqualToString:self.lastEvent])
@@ -287,17 +291,16 @@
                                region_info,@"region",
                                msg, @"message",
                                nil];
-        // NSLog(@"[INFO] [REGIONS] didExitRegion %@", msg);
+
         [self fireEvent:@"didExitRegion" withObject:event];
     }
 }
 
 
 - (void)locationManager:(CLLocationManager *)manager monitoringDidFailForRegion:(CLRegion *)region withError:(NSError *)error {
-    // NSLog(@"[INFO] [REGIONS] [GEOFENCE] DID FAIL FOR REGION");
     
 	NSString *formattedError = [NSString stringWithFormat:@"%@", error];
-    // NSLog(@"[INFO] monitoringDidFailForRegion %@", formattedError);
+
     [self setLastEvent:@""];
     NSDictionary *region_info = [NSDictionary dictionaryWithObjectsAndKeys:
                                  [NSNumber numberWithDouble:[(CLCircularRegion *)region center].latitude],@"lat",
@@ -310,7 +313,6 @@
                            formattedError,@"error",
                            region_info,@"region",
                            nil];
-	// NSLog(@"[INFO] monitoringDidFailForRegion %@", formattedError);
     [self fireEvent:@"monitoringDidFailForRegion" withObject:event];
 }
 
@@ -318,8 +320,6 @@
 
 -(void)initialize:(id)newOptions
 {
-    // NSLog(@"[INFO] [REGIONS] INITIALIZE CALLED");
-    
     ENSURE_SINGLE_ARG(newOptions, NSDictionary);
     [self setOptions:newOptions];
     
@@ -330,8 +330,6 @@
 // to see if you're in a region
 -(void)checkLocation:(id)args
 {
-    // NSLog(@"[INFO] [REGIONS] CHECK LOCATION");
-    
     [self setCheckLocal:TRUE];
     
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -342,26 +340,23 @@
 
 -(void)startMonitoring:(id)region
 {
-    // NSLog(@"[INFO] [REGIONS] [GEOFENCE] START MONITORING");
     
     ENSURE_UI_THREAD(startMonitoring,region);
     ENSURE_SINGLE_ARG(region,NSDictionary);
     
-    if ([CLLocationManager isMonitoringAvailableForClass:[CLRegion class]]) {
-        // ios6 [CLLocationManager regionMonitoringAvailable]
+    if ([self regionMonitoringEnabled]) {
+        
         CLRegion *newRegion = [self dictToRegion:region];
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [[self getLocationManager] startMonitoringForRegion:newRegion];
         });
         
-        // NSLog(@"[INFO] Started Monitoring Region - %@", newRegion.identifier);
-        
         [newRegion release];
         
         [self fireEvent:@"startedMonitoringRegion" withObject:region];
     } else {
-        // NSLog(@"[INFO] regionMonitoring not available");
+        NSLog(@"[DEBUG] [REGIONS] regionMonitoring not available");
     }
 }
 
@@ -373,10 +368,8 @@
     ENSURE_UI_THREAD(startMonitoringRegions, args);
     
     // Can we do this
-    if ([CLLocationManager isMonitoringAvailableForClass:[CLRegion class]]) {
-        // ios6 [CLLocationManager regionMonitoringAvailable]
+    if ([self regionMonitoringEnabled]) {
         
-        // NSLog(@"[INFO] startMonitoringRegions");
         NSArray * regions = [[args objectAtIndex:0]retain];
         
         // Iterate through the regions and stop them all
@@ -386,8 +379,6 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 [[self getLocationManager] startMonitoringForRegion:newRegion];
             });
-            
-            // NSLog(@"[INFO] Started Monitoring Region - %@", newRegion.identifier);
             
             [newRegion release];
         }
@@ -399,7 +390,7 @@
         [self fireEvent:@"startedMonitoringRegions" withObject:event];
 
     } else {
-        // NSLog(@"[INFO] regionMonitoring not available");
+        NSLog(@"[DEBUG] [REGIONS] regionMonitoring not available");
     }
 }
 
@@ -408,34 +399,30 @@
 {
     ENSURE_UI_THREAD(stopMonitoringAllRegions, args);
     
-    // Get all regions being monitored for this application.
-    if ([CLLocationManager isMonitoringAvailableForClass:[CLRegion class]]) {
-        // ios6 [CLLocationManager regionMonitoringAvailable]
+    if ([self regionMonitoringEnabled]) {
         
         NSArray *regions = [[[self getLocationManager] monitoredRegions] allObjects];
         
         int size = [regions count];
-        // NSLog(@"[INFO] [REGIONS] STOPPING MONITORING %d REGIONS", size);
         
         // Iterate through the regions and add annotations to the map for each of them.
         for (int i = 0; i < [regions count]; i++) {
             CLRegion *region = [regions objectAtIndex:i];
             dispatch_async(dispatch_get_main_queue(), ^{
-                // NSLog(@"[INFO] [REGIONS] STOPPING MONITORING SINGLE REGION");
                 [[self getLocationManager] stopMonitoringForRegion:region];
             });
         }
     } else {
-        // NSLog(@"[INFO] regionMonitoring not available");
-    }
+        NSLog(@"[DEBUG] [REGIONS] regionMonitoring not available");
+    };
 }
 
 // NOTE: not on the UI thread since it returns something... hmmmm...
 // If this is called too fast, it could cause problems
 -(id)monitoredRegions:(id)args
 {
-    if ([CLLocationManager isMonitoringAvailableForClass:[CLRegion class]]) {
-        // ios6 [CLLocationManager regionMonitoringAvailable]
+    if ([self regionMonitoringEnabled]) {
+        
         if (locationManager){
             // Get all regions being monitored for this application.
             NSArray *regions = [[[self getLocationManager] monitoredRegions] allObjects];
@@ -454,13 +441,13 @@
             }
             return jsRegions;
         } else {
-            // NSLog(@"[INFO] [REGIONS] monitoredRegions called before locationManager properly initialized.");
             return [NSMutableArray arrayWithCapacity:0];
         }
     } else {
-        // NSLog(@"[INFO] [REGIONS] regionMonitoring not available");
+        NSLog(@"[DEBUG] [REGIONS] regionMonitoring not available");
+
         return [NSMutableArray arrayWithCapacity:0];
-    }
+    };
 }
 
 @end
