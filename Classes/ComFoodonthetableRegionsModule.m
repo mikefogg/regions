@@ -115,18 +115,6 @@
                 return;
             }
             
-            if ([[UIApplication sharedApplication] backgroundRefreshStatus] == UIBackgroundRefreshStatusAvailable) {
-                // NSLog(@"[INFO] %@",@"Background updates are available for the app.");
-            }
-            else if([[UIApplication sharedApplication] backgroundRefreshStatus] == UIBackgroundRefreshStatusDenied)
-            {
-                // NSLog(@"[INFO] The user explicitly disabled background behavior for this app or for the whole system.");
-            }
-            else if([[UIApplication sharedApplication] backgroundRefreshStatus] == UIBackgroundRefreshStatusRestricted)
-            {
-                // NSLog(@"[INFO] Background updates are unavailable and the user cannot enable them again. For example, this status can occur when parental controls are in effect for the current user.");
-            }
-            
             // Make sure we check the users current location
             checkLocal = TRUE;
             
@@ -400,20 +388,23 @@
     ENSURE_UI_THREAD(stopMonitoringAllRegions, args);
     
     if ([self regionMonitoringEnabled]) {
-        
-        NSArray *regions = [[[self getLocationManager] monitoredRegions] allObjects];
-        
-        int size = [regions count];
-        
-        // Iterate through the regions and add annotations to the map for each of them.
-        for (int i = 0; i < [regions count]; i++) {
-            CLRegion *region = [regions objectAtIndex:i];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[self getLocationManager] stopMonitoringForRegion:region];
-            });
+        @try {
+            NSArray *regions = [[[self getLocationManager] monitoredRegions] allObjects];
+            
+            int size = [regions count];
+            
+            // Iterate through the regions and add annotations to the map for each of them.
+            for (int i = 0; i < [regions count]; i++) {
+                CLRegion *region = [regions objectAtIndex:i];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[self getLocationManager] stopMonitoringForRegion:region];
+                });
+            }
+        } @catch (NSException *exception) {
+            // Well... that didn't work...
         }
     } else {
-        NSLog(@"[DEBUG] [REGIONS] regionMonitoring not available");
+        //  NSLog(@"[DEBUG] [REGIONS] regionMonitoring not available");
     };
 }
 
