@@ -10,29 +10,29 @@
 	<string>regions</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>942F7E83-6E1F-49F9-A196-AB2F1E6DDF96</key>
-		<string>ssh://github.com/mikefogg/regions.git</string>
+		<key>C0A5FA25BFA43A88877080ABF2F89E9F217A065E</key>
+		<string>github.com:mikefogg/regions.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>regions.xcodeproj/project.xcworkspace</string>
+	<string>regions.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>942F7E83-6E1F-49F9-A196-AB2F1E6DDF96</key>
+		<key>C0A5FA25BFA43A88877080ABF2F89E9F217A065E</key>
 		<string>../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>ssh://github.com/mikefogg/regions.git</string>
+	<string>github.com:mikefogg/regions.git</string>
 	<key>IDESourceControlProjectVersion</key>
-	<integer>110</integer>
+	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>942F7E83-6E1F-49F9-A196-AB2F1E6DDF96</string>
+	<string>C0A5FA25BFA43A88877080ABF2F89E9F217A065E</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>942F7E83-6E1F-49F9-A196-AB2F1E6DDF96</string>
+			<string>C0A5FA25BFA43A88877080ABF2F89E9F217A065E</string>
 			<key>IDESourceControlWCCName</key>
 			<string>regions</string>
 		</dict>
